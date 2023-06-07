@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>○×ゲーム</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        text-align: center;
+      }
+
+      table th,
+      table td {
+        height: 50px;
+        width: 50px;
+        padding: 4px;
+        padding-bottom: 1px;
+        border: 1px solid #ccc;
+      }
+
+      table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+
+      button {
+        height: 100%;
+        width: 100%;
+      }
+
+      label {
+        height: 100%;
+        width: 100%;
+        font-size: 200%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>○×ゲーム</h1>
+    <table>
+      <tr>
+        <td id="1-1"><button onclick="btnClick('1-1')"></button></td>
+        <td id="1-2"><button onclick="btnClick('1-2')"></button></td>
+        <td id="1-3"><button onclick="btnClick('1-3')"></button></td>
+      </tr>
+      <tr>
+        <td id="2-1"><button onclick="btnClick('2-1')"></button></td>
+        <td id="2-2"><button onclick="btnClick('2-2')"></button></td>
+        <td id="2-3"><button onclick="btnClick('2-3')"></button></td>
+      </tr>
+      <tr>
+        <td id="3-1"><button onclick="btnClick('3-1')"></button></td>
+        <td id="3-2"><button onclick="btnClick('3-2')"></button></td>
+        <td id="3-3"><button onclick="btnClick('3-3')"></button></td>
+      </tr>
+    </table>
+
+    <p id="text"><label id="side">*</label>の番です。</p>
+
+    <script>
+      var board = [
+        [null, null, null],
+        [null, null, null],
+        [null, null, null],
+      ];
+
+      const icon = {
+        tic: "◯",
+        tac: "☓",
+      };
+
+      let side;
+      let blnEnd = false;
+
+      changeSide();
+
+      function changeSide() {
+        if (side == Object.keys(icon)[0]) {
+          side = Object.keys(icon)[1];
+        } else {
+          side = Object.keys(icon)[0];
+        }
+
+        const eleLabel = document.getElementById("side");
+        eleLabel.textContent = icon[side];
+      }
+
+      function checkGame(position) {
+        let blnLine = false;
+        let count = 0;
+
+        const [px, py] = position.split("-").map((v) => parseInt(v) - 1);
+
+        //行チェック
+        for (let i = 0; i < 3; i++) {
+          if (board[px][i] != side) break;
+
+          count++;
+        }
+        if (count == 3) {
+          return true;
+        }
+
+        count = 0;
+        //列チェック
+        for (let i = 0; i < 3; i++) {
+          if (board[i][py] != side) break;
+
+          count++;
+        }
+        if (count == 3) {
+          return true;
+        }
+
+        //右下がりチェック
+        if (["1-1", "2-2", "3-3"].includes(position)) {
+          count = 0;
+          for (let i = 0; i < 3; i++) {
+            if (board[i][i] != side) break;
+
+            count++;
+          }
+          if (count == 3) {
+            return true;
+          }
+        }
+
+        //右上がりチェック
+        if (["3-1", "2-2", "1-3"].includes(position)) {
+          count = 0;
+          for (let i = 0; i < 3; i++) {
+            if (board[2 - i][i] != side) break;
+
+            count++;
+          }
+          if (count == 3) {
+            return true;
+          }
+        }
+      }
+
+      function btnClick(position) {
+        if (blnEnd) return;
+
+        const [px, py] = position.split("-").map((v) => parseInt(v) - 1);
+
+        const eleTable = document.getElementById(position);
+
+        // 子要素をすべて削除
+        while (eleTable.firstChild) {
+          eleTable.removeChild(eleTable.firstChild);
+        }
+
+        const eleLabel = document.createElement("label");
+
+        eleLabel.textContent = icon[side];
+        eleTable.appendChild(eleLabel);
+
+        board[px][py] = side;
+
+        if (checkGame(position)) {
+          endMessage();
+        } else {
+          changeSide();
+
+          //ゲームの継続チェック
+          checkEnd();
+        }
+      }
+
+      function endMessage() {
+        const eleLabel = document.getElementById("text");
+        eleLabel.style.display = "none";
+
+        const eleMessage = document.createElement("label");
+        eleMessage.textContent = `${icon[side]}が勝ちました。`;
+
+        eleLabel.parentElement.appendChild(eleMessage);
+
+        blnEnd = true;
+      }
+
+      function checkEnd() {
+        if (
+          (function () {
+            for (let row of board) {
+              for (let col of row) {
+                if (col == null) return false;
+              }
+            }
+
+            return true;
+          })()
+        ) {
+          for (let row = 1; row <= 3; row++) {
+            for (let col = 1; col <= 3; col++) {
+              const position = `${row}-${col}`;
+
+              const eleTable = document.getElementById(position);
+
+              // 子要素をすべて削除
+              while (eleTable.firstChild) {
+                eleTable.removeChild(eleTable.firstChild);
+              }
+
+              const eleButton = document.createElement("button");
+
+              // イベントリスナーをタグに直接記述
+              eleButton.setAttribute("onclick", `btnClick('${position}')`);
+
+              eleTable.appendChild(eleButton);
+
+              //配列のデータを削除
+              board[row-1][col-1] = null;
+            }
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
