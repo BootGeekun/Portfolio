@@ -1,20 +1,50 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ポートフォリオ</title>
-</head>
-<body>
+
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 400px;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      tr:hover {
+        background-color: #f5f5f5;
+      }
+    </style>
+  </head>
+  <body>
     <h1>作品一覧</h1>
     <table>
-        <tr>
-            <a href="./Tic-Tac-Toe/Tic-Tac-Toe.html">○×ゲーム</a>
-        </tr>
-        <tr>
-            <a href="./LucasTower/LucasTower.html">ハノイの塔</a>
-        </tr>
+      <tr>
+        <td>
+          <a href="./Tic-Tac-Toe/Tic-Tac-Toe.html">○×ゲーム</a>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <a href="./LucasTower/LucasTower.html">ハノイの塔</a>
+        </td>
+      </tr>
     </table>
-</body>
+  </body>
 </html>
