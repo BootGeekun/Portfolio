@@ -138,8 +138,6 @@
       dragElement.style.top = dragElement.getBoundingClientRect().top + "px";
       dragElement.style.position = "absolute";
 
-      console.log(dragElement.getBoundingClientRect().left);
-
       //オブジェクトの所属を変更
       dragElement.parentElement.removeChild(dragElement);
       document.body.appendChild(dragElement);
