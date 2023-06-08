@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .area {
+        display: inline-block;
+        width: 30%;
+        height: 200px;
+        background-color: wheat;
+        margin: 1%;
+        transform: rotate(180deg);
+      }
+
+      .base_top {
+        background-color: black;
+        position: relative;
+        width: 20px;
+        height: 82%;
+        top: 10%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .base_under {
+        background-color: black;
+        position: relative;
+        width: 94%;
+        height: 20px;
+        top: -80%;
+        left: 3%;
+      }
+      #bar5 {
+        background-color: blue;
+        position: relative;
+        width: 80%;
+        height: 30px;
+        top: -80%;
+        left: 10%;
+      }
+
+      #bar4 {
+        background-color: pink;
+        position: relative;
+        width: 70%;
+        height: 30px;
+        top: -80%;
+        left: 15%;
+      }
+      #bar3 {
+        background-color: yellow;
+        position: relative;
+        width: 60%;
+        height: 30px;
+        top: -80%;
+        left: 20%;
+      }
+      #bar2 {
+        background-color: green;
+        position: relative;
+        width: 50%;
+        height: 30px;
+        top: -80%;
+        left: 25%;
+      }
+      #bar1 {
+        background-color: red;
+        position: relative;
+        width: 40%;
+        height: 25px;
+        top: -80%;
+        left: 30%;
+      }
+
+      .bar {
+        cursor: grab;
+      }
+
+      .bar.drag {
+        cursor: grabbing;
+        position: absolute;
+        z-index: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="left" class="area" onclick="click(1)">
+      <div class="base_top"></div>
+      <div class="base_under"></div>
+      <div id="bar5" class="bar"></div>
+      <div id="bar4" class="bar"></div>
+      <div id="bar3" class="bar"></div>
+      <div id="bar2" class="bar"></div>
+      <div id="bar1" class="bar"></div>
+    </div>
+    <div id="center" class="area">
+      <div class="base_top"></div>
+      <div class="base_under"></div>
+    </div>
+    <div id="right" class="area">
+      <div class="base_top"></div>
+      <div class="base_under"></div>
+    </div>
+  </body>
+  <script>
+    //ドラッグ用のフィールド変数
+    var dragPoint = { X: null, Y: null, eleArea: null };
+    var dragElement = null;
+
+    //barオブジェクトの一覧取得
+    const eleBars = document.getElementsByClassName("bar");
+
+    for (let eleBar of eleBars) {
+      eleBar.addEventListener("mousedown", dragMouseDown, false);
+    }
+
+    document.body.addEventListener("mousemove", dragMouseMove, false);
+    document.body.addEventListener("mouseup", dragMouseUp, false);
+
+    function dragMouseDown(e) {
+      if (!isCheckMove(this)) return;
+
+      dragElement = this;
+      dragPoint.eleArea = this.parentElement;
+
+      //オブジェクトのサイズを相対から絶対に変更
+      dragElement.style.width = dragElement.offsetWidth + "px";
+      dragElement.style.height = dragElement.offsetHeight + "px";
+
+      //要素内の相対座標を取得
+      dragPoint.X = e.pageX - dragElement.getBoundingClientRect().left;
+      dragPoint.Y = e.pageY - dragElement.getBoundingClientRect().top;
+
+      //座標位置を絶対位置に変更
+      dragElement.style.left = dragElement.getBoundingClientRect().left + "px";
+      dragElement.style.top = dragElement.getBoundingClientRect().top + "px";
+      dragElement.style.position = "absolute";
+
+      console.log(dragElement.getBoundingClientRect().left);
+
+      //オブジェクトの所属を変更
+      dragElement.parentElement.removeChild(dragElement);
+      document.body.appendChild(dragElement);
+
+      //dragクラスを追加
+      dragElement.classList.add("drag");
+    }
+
+    function dragMouseMove(e) {
+      if (!dragElement) return;
+
+      //マウスが動いた場所に要素を動かす
+      dragElement.style.top = e.pageY - dragPoint.Y + "px";
+      dragElement.style.left = e.pageX - dragPoint.X + "px";
+    }
+
+    function dragMouseUp(e) {
+      if (!dragElement) return;
+
+      //ドラッグ先オブジェクト
+      let eleTarget = null;
+
+      //ドラッグ先オブジェクトの判定
+      const eleAreas = document.getElementsByClassName("area");
+
+      for (let eleArea of eleAreas) {
+        const left = eleArea.getBoundingClientRect().left;
+        const right = eleArea.getBoundingClientRect().right;
+        const top = eleArea.getBoundingClientRect().top;
+        const bottom = eleArea.getBoundingClientRect().bottom;
+
+        if (left < e.pageX && e.pageX < right) {
+          if (top < e.pageY && e.pageY < bottom) {
+            eleTarget = eleArea;
+          }
+        }
+      }
+
+      if (isCheckMove(eleTarget)) {
+        //オブジェクトの所属を変更
+        dragElement.parentElement.removeChild(dragElement);
+        eleTarget.appendChild(dragElement);
+
+        //スタイル情報を削除
+        dragElement.removeAttribute("style");
+      } else {
+        //移動先が不正な為、移動を無かった事にする
+
+        //オブジェクトの所属を変更
+        dragElement.parentElement.removeChild(dragElement);
+        dragPoint.eleArea.appendChild(dragElement);
+
+        //スタイル情報を削除
+        dragElement.removeAttribute("style");
+      }
+
+      dragElement.classList.remove("drag");
+
+      dragElement = null;
+    }
+
+    function isCheckMove(eleTarget) {
+      if (dragElement) {
+        if (eleTarget.classList.contains("area")) {
+          const numBarTarget = parseInt(dragElement.id.replace("bar", ""));
+
+          const numBarMin = Math.min(
+            ...Array.from(eleTarget.getElementsByClassName("bar")).map((ele) =>
+              parseInt(ele.id.replace("bar", ""))
+            )
+          );
+
+          if (numBarTarget < numBarMin) return true;
+        }
+      } else {
+        if (eleTarget.classList.contains("bar")) {
+          const numBarTarget = parseInt(eleTarget.id.replace("bar", ""));
+          const numBarMin = Math.min(
+            ...Array.from(
+              eleTarget.parentElement.getElementsByClassName("bar")
+            ).map((ele) => parseInt(ele.id.replace("bar", "")))
+          );
+
+          if (numBarTarget == numBarMin) return true;
+        }
+      }
+      return false;
+    }
+  </script>
+</html>
